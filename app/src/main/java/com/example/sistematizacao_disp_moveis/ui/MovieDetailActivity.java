@@ -47,8 +47,8 @@ public class MovieDetailActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 Intent editIntent = new Intent(MovieDetailActivity.this, AddEditMovieActivity.class);
-                editIntent.putExtra("movie_id", movieId);
-                startActivity(editIntent);
+                editIntent.putExtra("movie_id", movieId); // Passa o ID do filme para ser editado
+                startActivityForResult(editIntent, 1);
             }
         });
 
