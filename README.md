@@ -1,1 +1,1 @@
-![Demonstração do projeto](assets/ezgif-7-b3e791928b.gif)
+![Demonstração do projeto](images/ezgif-7-b3e791928b.gif)
