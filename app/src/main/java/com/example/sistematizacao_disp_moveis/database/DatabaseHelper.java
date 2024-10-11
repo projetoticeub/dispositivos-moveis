@@ -40,49 +40,74 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 
     // CRUD Operations
     public void addMovie(Movie movie) {
-        SQLiteDatabase db = this.getWritableDatabase();
-        ContentValues values = new ContentValues();
-        values.put(COLUMN_TITLE, movie.getTitle());
-        values.put(COLUMN_DIRECTOR, movie.getDirector());
-        values.put(COLUMN_YEAR, movie.getYear());
-        db.insert(TABLE_MOVIES, null, values);
-        db.close();
+        try (SQLiteDatabase db = this.getWritableDatabase()) {
+            ContentValues values = new ContentValues();
+            values.put(COLUMN_TITLE, movie.getTitle());
+            values.put(COLUMN_DIRECTOR, movie.getDirector());
+            values.put(COLUMN_YEAR, movie.getYear());
+            db.insert(TABLE_MOVIES, null, values);
+        }
     }
 
     public ArrayList<Movie> getAllMovies() {
         ArrayList<Movie> movieList = new ArrayList<>();
         String selectQuery = "SELECT * FROM " + TABLE_MOVIES;
-        SQLiteDatabase db = this.getReadableDatabase();
-        Cursor cursor = db.rawQuery(selectQuery, null);
-        if (cursor.moveToFirst()) {
-            do {
-                @SuppressLint("Range") Movie movie = new Movie(
-                        cursor.getInt(cursor.getColumnIndex(COLUMN_ID)),
-                        cursor.getString(cursor.getColumnIndex(COLUMN_TITLE)),
-                        cursor.getString(cursor.getColumnIndex(COLUMN_DIRECTOR)),
-                        cursor.getInt(cursor.getColumnIndex(COLUMN_YEAR))
-                );
-                movieList.add(movie);
-            } while (cursor.moveToNext());
+
+        try (SQLiteDatabase db = this.getReadableDatabase();
+             Cursor cursor = db.rawQuery(selectQuery, null)) {
+            if (cursor.moveToFirst()) {
+                do {
+                    Movie movie = new Movie(
+                            cursor.getInt(cursor.getColumnIndexOrThrow(COLUMN_ID)),
+                            cursor.getString(cursor.getColumnIndexOrThrow(COLUMN_TITLE)),
+                            cursor.getString(cursor.getColumnIndexOrThrow(COLUMN_DIRECTOR)),
+                            cursor.getInt(cursor.getColumnIndexOrThrow(COLUMN_YEAR))
+                    );
+                    movieList.add(movie);
+                } while (cursor.moveToNext());
+            }
         }
-        cursor.close();
-        db.close();
         return movieList;
     }
 
+    // Update movie
     public void updateMovie(Movie movie) {
-        SQLiteDatabase db = this.getWritableDatabase();
-        ContentValues values = new ContentValues();
-        values.put(COLUMN_TITLE, movie.getTitle());
-        values.put(COLUMN_DIRECTOR, movie.getDirector());
-        values.put(COLUMN_YEAR, movie.getYear());
-        db.update(TABLE_MOVIES, values, COLUMN_ID + " = ?", new String[]{String.valueOf(movie.getId())});
-        db.close();
+        try (SQLiteDatabase db = this.getWritableDatabase()) {
+            ContentValues values = new ContentValues();
+            values.put(COLUMN_TITLE, movie.getTitle());
+            values.put(COLUMN_DIRECTOR, movie.getDirector());
+            values.put(COLUMN_YEAR, movie.getYear());
+            db.update(TABLE_MOVIES, values, COLUMN_ID + " = ?", new String[]{String.valueOf(movie.getId())});
+        }
     }
 
+    // Delete movie
     public void deleteMovie(int movieId) {
-        SQLiteDatabase db = this.getWritableDatabase();
-        db.delete(TABLE_MOVIES, COLUMN_ID + " = ?", new String[]{String.valueOf(movieId)});
-        db.close();
+        try (SQLiteDatabase db = this.getWritableDatabase()) {
+            db.delete(TABLE_MOVIES, COLUMN_ID + " = ?", new String[]{String.valueOf(movieId)});
+        }
+    }
+
+    // Search movies by title
+    public ArrayList<Movie> searchMovies(String title) {
+        ArrayList<Movie> movieList = new ArrayList<>();
+        String searchQuery = "SELECT * FROM " + TABLE_MOVIES + " WHERE " + COLUMN_TITLE + " LIKE ?";
+
+        try (SQLiteDatabase db = this.getReadableDatabase();
+             Cursor cursor = db.rawQuery(searchQuery, new String[]{"%" + title + "%"})) {
+            if (cursor.moveToFirst()) {
+                do {
+                    Movie movie = new Movie(
+                            cursor.getInt(cursor.getColumnIndexOrThrow(COLUMN_ID)),
+                            cursor.getString(cursor.getColumnIndexOrThrow(COLUMN_TITLE)),
+                            cursor.getString(cursor.getColumnIndexOrThrow(COLUMN_DIRECTOR)),
+                            cursor.getInt(cursor.getColumnIndexOrThrow(COLUMN_YEAR))
+                    );
+                    movieList.add(movie);
+                } while (cursor.moveToNext());
+            }
+        }
+        return movieList;
     }
 }
+

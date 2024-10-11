@@ -6,6 +6,7 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.TextView;
 
+import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 
 import com.example.sistematizacao_disp_moveis.R;
@@ -18,7 +19,7 @@ public class MovieDetailActivity extends AppCompatActivity {
     private TextView yearTextView;
     private Button editButton;
     private Button deleteButton;
-    private DatabaseHelper db; // Declare o DatabaseHelper
+    private DatabaseHelper db;
     private int movieId;
 
     @Override
@@ -34,44 +35,39 @@ public class MovieDetailActivity extends AppCompatActivity {
 
         db = new DatabaseHelper(this);
 
+        // Recuperando o ID do filme
         Intent intent = getIntent();
         movieId = intent.getIntExtra("movie_id", -1);
 
         displayMovieDetails(movieId);
 
-        editButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                Intent editIntent = new Intent(MovieDetailActivity.this, AddEditMovieActivity.class);
-                editIntent.putExtra("movie_id", movieId);
-                startActivityForResult(editIntent, 1);
-            }
+        editButton.setOnClickListener(v -> {
+            Intent editIntent = new Intent(MovieDetailActivity.this, AddEditMovieActivity.class);
+            editIntent.putExtra("movie_id", movieId);
+            startActivityForResult(editIntent, 1);
         });
 
-        deleteButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                db.deleteMovie(movieId);
-                finish();
-            }
+        deleteButton.setOnClickListener(v -> {
+            db.deleteMovie(movieId);
+            finish();
         });
     }
 
     private void displayMovieDetails(int movieId) {
-
-        if (db != null) {
-            Movie movie = db.getAllMovies().stream().filter(m -> m.getId() == movieId).findFirst().orElse(null);
-            if (movie != null) {
-                titleTextView.setText(movie.getTitle());
-                directorTextView.setText(movie.getDirector());
-                yearTextView.setText(String.valueOf(movie.getYear()));
-            }
-        } else {
-
-            titleTextView.setText("Erro ao carregar filme");
+        Movie movie = db.getAllMovies().stream().filter(m -> m.getId() == movieId).findFirst().orElse(null);
+        if (movie != null) {
+            titleTextView.setText(movie.getTitle());
+            directorTextView.setText(movie.getDirector());
+            yearTextView.setText(String.valueOf(movie.getYear()));
         }
     }
 
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        if (requestCode == 1 && resultCode == RESULT_OK) {
 
-
+            displayMovieDetails(movieId);
+        }
+    }
 }
