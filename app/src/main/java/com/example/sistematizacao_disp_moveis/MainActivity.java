@@ -29,24 +29,20 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        // Inicializa os componentes
         db = new DatabaseHelper(this);
         listView = findViewById(R.id.list_view);
         addButton = findViewById(R.id.add_button);
 
-        // Configura o botão para adicionar um filme
         addButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 Intent intent = new Intent(MainActivity.this, AddEditMovieActivity.class);
-                startActivityForResult(intent, 1); // Usa startActivityForResult para obter o resultado
+                startActivityForResult(intent, 1);
             }
         });
 
-        // Carrega os filmes ao iniciar a atividade
         loadMovies();
 
-        // Configura o listener de cliques para a lista de filmes
         listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
@@ -61,16 +57,16 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onResume() {
         super.onResume();
-        loadMovies(); // Atualiza a lista ao voltar para a atividade
+        loadMovies();
     }
 
     private void loadMovies() {
-        movieList = db.getAllMovies(); // Obtém a lista de filmes do banco de dados
+        movieList = db.getAllMovies();
         ArrayList<String> titles = new ArrayList<>();
         for (Movie movie : movieList) {
-            titles.add(movie.getTitle()); // Adiciona apenas os títulos à lista
+            titles.add(movie.getTitle());
         }
         adapter = new ArrayAdapter<>(this, android.R.layout.simple_list_item_1, titles);
-        listView.setAdapter(adapter); // Define o adapter na ListView
+        listView.setAdapter(adapter);
     }
 }

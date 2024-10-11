@@ -32,22 +32,18 @@ public class MovieDetailActivity extends AppCompatActivity {
         editButton = findViewById(R.id.edit_button);
         deleteButton = findViewById(R.id.delete_button);
 
-        // Inicializa o DatabaseHelper
         db = new DatabaseHelper(this);
 
-        // Recuperar o ID do filme passado pela Intent
         Intent intent = getIntent();
         movieId = intent.getIntExtra("movie_id", -1);
 
-        // Exibir detalhes do filme
         displayMovieDetails(movieId);
 
-        // Configurar ações dos botões
         editButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 Intent editIntent = new Intent(MovieDetailActivity.this, AddEditMovieActivity.class);
-                editIntent.putExtra("movie_id", movieId); // Passa o ID do filme para ser editado
+                editIntent.putExtra("movie_id", movieId);
                 startActivityForResult(editIntent, 1);
             }
         });
@@ -56,13 +52,13 @@ public class MovieDetailActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 db.deleteMovie(movieId);
-                finish(); // Voltar à tela principal
+                finish();
             }
         });
     }
 
     private void displayMovieDetails(int movieId) {
-        // Verifique se a lista de filmes não é nula
+
         if (db != null) {
             Movie movie = db.getAllMovies().stream().filter(m -> m.getId() == movieId).findFirst().orElse(null);
             if (movie != null) {
@@ -71,7 +67,7 @@ public class MovieDetailActivity extends AppCompatActivity {
                 yearTextView.setText(String.valueOf(movie.getYear()));
             }
         } else {
-            // Tratar erro: db é nulo
+
             titleTextView.setText("Erro ao carregar filme");
         }
     }
